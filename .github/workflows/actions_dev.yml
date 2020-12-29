@@ -16,10 +16,8 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - uses: docker/setup-buildx-action@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
+
+
       # 安装maven依赖
       - name: Maven Clean Install
         run: |
@@ -39,3 +37,134 @@ jobs:
           npm install
           npm run build
           cd ..
+
+      - name: Move files and compress
+        run: |
+          echo "===开始压缩文件==="
+          mkdir -p transfer_files
+          mv ./mogu_admin/target/mogu_admin-0.0.1-SNAPSHOT.jar ./transfer_files/mogu_admin-0.0.1-SNAPSHOT.jar
+          mv ./mogu_sms/target/mogu_sms-0.0.1-SNAPSHOT.jar ./transfer_files/mogu_sms-0.0.1-SNAPSHOT.jar
+          mv ./mogu_picture/target/mogu_picture-0.0.1-SNAPSHOT.jar ./transfer_files/mogu_picture-0.0.1-SNAPSHOT.jar
+          mv ./mogu_web/target/mogu_web-0.0.1-SNAPSHOT.jar ./transfer_files/mogu_web-0.0.1-SNAPSHOT.jar
+          mv ./mogu_search/target/mogu_search-0.0.1-SNAPSHOT.jar ./transfer_files/mogu_search-0.0.1-SNAPSHOT.jar
+          mv ./vue_mogu_web/dist ./transfer_files/web_dist
+          mv ./vue_mogu_admin/dist ./transfer_files/admin_dist
+          tar -zcvf  transfer_files.tar.gz transfer_files/
+
+
+      - name: Remote scp
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.TENCENT_IP }}
+          username: ${{ secrets.TENCENT_USERNAME }}
+          password: ${{ secrets.TENCENT_PASSWORD }}
+          port: ${{ secrets.TENCENT_PORT }}
+          source: "transfer_files.tar.gz"
+          target: "/wangyb/blog/backend"
+
+
+      - name: Distribution and backup
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.TENCENT_IP }}
+          username: ${{ secrets.TENCENT_USERNAME }}
+          password: ${{ secrets.TENCENT_PASSWORD }}
+          port: ${{ secrets.TENCENT_PORT }}
+          script: |
+            cd /wangyb/blog/backend"
+            tar -zxvf /home/transfer_files.tar.gz
+
+            echo "################# mogu_admin moving #################"
+
+            if [ -f "/wangyb/blog/backend/mogu_admin-0.0.1-SNAPSHOT.jar.bak" ];then
+              echo "mogu_admin.jar.bak deleted"
+              rm -f /wangyb/blog/backend/mogu_admin-0.0.1-SNAPSHOT.jar.bak
+            fi
+            if [ -f "/wangyb/blog/backend/mogu_admin-0.0.1-SNAPSHOT.jar" ];then
+              echo "mogu_admin.jar is being backup"
+              mv /wangyb/blog/backend/mogu_admin-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_admin-0.0.1-SNAPSHOT.jar.bak
+            fi
+            mv /wangyb/blog/backend/transfer_files/mogu_admin-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_admin-0.0.1-SNAPSHOT.jar
+
+
+            echo "################# mogu_sms moving #################"
+
+            if [ -f "/wangyb/blog/backend/mogu_sms-0.0.1-SNAPSHOT.jar.bak" ];then
+              echo "mogu_sms.jar.bak deleted"
+              rm -f /wangyb/blog/backend/mogu_sms-0.0.1-SNAPSHOT.jar.bak
+            fi
+            if [ -f "/wangyb/blog/backend/mogu_admin-0.0.1-SNAPSHOT.jar" ];then
+              echo "mogu_sms.jar is being backup"
+              mv /wangyb/blog/backend/mogu_sms-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_sms-0.0.1-SNAPSHOT.jar.bak
+            fi
+            mv /wangyb/blog/backend/transfer_files/mogu_sms-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_sms-0.0.1-SNAPSHOT.jar
+
+            echo "################# mogu_picture moving #################"
+
+            if [ -f "/wangyb/blog/backend/mogu_picture-0.0.1-SNAPSHOT.jar.bak" ];then
+              echo "mogu_picture.jar.bak deleted"
+              rm -f /wangyb/blog/backend/mogu_picture-0.0.1-SNAPSHOT.jar.bak
+            fi
+            if [ -f "/home/mogu_blog/mogu_picture/mogu_picture-0.0.1-SNAPSHOT.jar" ];then
+              echo "mogu_picture.jar is being backup"
+              mv /wangyb/blog/backend/mogu_picture-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_picture-0.0.1-SNAPSHOT.jar.bak
+            fi
+            mv /wangyb/blog/backend/transfer_files/mogu_picture-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_picture-0.0.1-SNAPSHOT.jar
+
+
+            echo "################# mogu_web moving #################"
+
+            if [ -f "/wangyb/blog/backend/mogu_web-0.0.1-SNAPSHOT.jar.bak" ];then
+              echo "mogu_web.jar.bak deleted"
+              rm -f /wangyb/blog/backend/mogu_web-0.0.1-SNAPSHOT.jar.bak
+            fi
+            if [ -f "/wangyb/blog/backend/mogu_web-0.0.1-SNAPSHOT.jar" ];then
+              echo "mogu_web.jar is being backup"
+              mv /wangyb/blog/backend/mogu_web-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_web-0.0.1-SNAPSHOT.jar.bak
+            fi
+            mv /wangyb/blog/backend/transfer_files/mogu_web-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_web-0.0.1-SNAPSHOT.jar
+
+            echo "################# mogu_search moving #################"
+
+            if [ -f "/wangyb/blog/backend/mogu_search-0.0.1-SNAPSHOT.jar.bak" ];then
+              echo "mogu_search.jar.bak exists and is being deleted"
+              rm -f /wangyb/blog/backend/mogu_search-0.0.1-SNAPSHOT.jar.bak
+            fi
+            if [ -f "/wangyb/blog/backend/mogu_search-0.0.1-SNAPSHOT.jar" ];then
+              echo "mogu_search.jar exists and is being backup"
+              mv /wangyb/blog/backend/mogu_search-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_search-0.0.1-SNAPSHOT.jar.bak
+            fi
+            mv /wangyb/blog/backend/transfer_files/mogu_search-0.0.1-SNAPSHOT.jar /wangyb/blog/backend/mogu_search-0.0.1-SNAPSHOT.jar
+
+
+            echo "################# vue_mogu_web moving #################"
+
+            if [ -d "/wangyb/blog/front/vue_mogu_web/dist.bak/" ];then
+              echo "vue_mogu_web dist.bak exists and is being deleted"
+              cd /wangyb/blog/front/vue_mogu_web
+              rm -rf dist.bak/
+            fi
+            if [ -d "/wangyb/blog/front/vue_mogu_web/dist/" ];then
+              echo "vue_mogu_web dist exists and is being backup"
+              mv /wangyb/blog/front/vue_mogu_web/dist /wangyb/blog/front/vue_mogu_web/dist.bak
+            fi
+            mv /wangyb/blog/backend/transfer_files/web_dist /wangyb/blog/front/vue_mogu_web/dist
+
+
+            echo "################# vue_mogu_admin moving #################"
+
+            if [ -d "/wangyb/blog/front/vue_mogu_admin/dist.bak/" ];then
+              echo "vue_mogu_admin dist.bak exists and is being deleted"
+              cd /wangyb/blog/front/vue_mogu_admin
+              rm -rf dist.bak/
+            fi
+            if [ -d "/wangyb/blog/front/vue_mogu_admin/dist/" ];then
+              echo "vue_mogu_admin dist exists and is being backup"
+              mv /wangyb/blog/front/vue_mogu_admin/dist /wangyb/blog/front/vue_mogu_admin/dist.bak
+            fi
+            mv /wangyb/blog/backend/transfer_files/admin_dist /wangyb/blog/front/vue_mogu_admin/dist
+
+            echo "################# rm transfer_files.tar.gz #################"
+            rm -rf /home/transfer_files.tar.gz
+            echo "################# rm transfer_files #################"
+            rm -rf /home/transfer_files
