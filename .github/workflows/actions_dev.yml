@@ -168,6 +168,13 @@ jobs:
             mv /wangyb/blog/backend/transfer_files/admin_dist /wangyb/blog/front/vue_mogu_admin/dist
 
             echo "################# rm transfer_files.tar.gz #################"
-            rm -rf /home/transfer_files.tar.gz
+            rm -rf /wangyb/blog/backend/transfer_files.tar.gz
             echo "################# rm transfer_files #################"
-            rm -rf /home/transfer_files
+            rm -rf /wangyb/blog/backend/transfer_files
+
+
+            if [ -d "/wangyb/blog/backend/blog.sh" ];then
+              echo "###sh remote blog.sh###"
+              sh /wangyb/blog/backend/blog.sh
+            fi
+
