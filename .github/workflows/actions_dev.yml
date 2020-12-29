@@ -71,8 +71,8 @@ jobs:
           password: ${{ secrets.TENCENT_PASSWORD }}
           port: ${{ secrets.TENCENT_PORT }}
           script: |
-            cd /wangyb/blog/backend"
-            tar -zxvf /home/transfer_files.tar.gz
+            cd /wangyb/blog/backend
+            tar -zxvf /wangyb/blog/backendta/transfer_files.tar.gz
 
             echo "################# mogu_admin moving #################"
 
