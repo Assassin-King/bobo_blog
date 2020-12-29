@@ -74,6 +74,8 @@ jobs:
             cd /wangyb/blog/backend
             tar -zxvf /wangyb/blog/backend/transfer_files.tar.gz
 
+            sleep 30
+
             echo "################# mogu_admin moving #################"
 
             if [ -f "/wangyb/blog/backend/mogu_admin-0.0.1-SNAPSHOT.jar.bak" ];then
